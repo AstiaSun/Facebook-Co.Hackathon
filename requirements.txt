@@ -3,3 +3,6 @@ numpy==1.15.3
 flask==1.0.2
 scipy==1.1.0
 scikit-learn==0.20
+pymongo==3.7.2
+Flask-Session==0.3.1
+Flask-Cache==0.13.1
