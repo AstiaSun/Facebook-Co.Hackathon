@@ -2,7 +2,6 @@ import json
 
 from flask import Flask, request, Response
 
-import validator
 from db_pool.db import DBPool
 # start application
 from utils import FILTER_PARAMS
@@ -32,9 +31,9 @@ def get_filtering_params():
 @app.route('/', methods=['POST'])
 def filter_data_and_analyse():
     data = request.get_json()
-    is_valid = validator.check_filtering_post_request(data)
-    if not is_valid['status']:
-        return Response(json.dumps(is_valid['error']), mimetype='application/json')
+    #is_valid = validator.check_filtering_post_request(data)
+    #if not is_valid['status']:
+        #return Response(json.dumps(is_valid['error']), mimetype='application/json')
     regions = db.get_regions_by_filter(data['filters'])
     return Response(json.dumps(regions), mimetype='application/json')
 

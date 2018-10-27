@@ -8,3 +8,4 @@ FILTER_KEYS = ['univ_title', 'area_title', {'part_top_applicants': ["type", "val
 
 def get_some_id(univ_title):
     return base64.b64encode(univ_title.encode('utf-8')).decode('ascii')
+

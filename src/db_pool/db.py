@@ -57,3 +57,6 @@ class DBPool(object):
     def __get_univ_ids__(self, title, locations):
         return list(self._db.univs.find({'univ_title': {"$in": title}, 'univ_location': {"$in": locations}},
                                         {"univ_id": 1}).distinct('univ_id'))
+
+    def get_university_title_by_id(self, univ_id):
+        return list(self._db.univs.find({"univ_id": univ_id}, {"_id": 0, "univ_id": 1}).dictinct("univ_id"))
