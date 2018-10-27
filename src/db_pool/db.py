@@ -33,7 +33,8 @@ class DBPool(object):
     def get_regions_by_filter(self, filter_data):
         filter_data = self.__format_filter_data_to_mongo_request__(filter_data)
         print(filter_data)
-        return list(self._db.requests.find(filter_data, {"_id": 0}))
+        resulting_data = self._db.requests.find(filter_data, {"_id": 0})
+        return list(resulting_data)
 
     def __format_filter_data_to_mongo_request__(self, data):
         result_query = {}
@@ -42,7 +43,10 @@ class DBPool(object):
                 continue
             if key in data:
                 if key == 'univ_title':
-                    univ_ids = self.__get_univ_ids__(data[key], data['univ_location'])
+                    if 'univ_locations' in data:
+                        univ_ids = self.__get_univ_ids__(data[key], data['univ_location'])
+                    else:
+                        univ_ids = [get_some_id(title) for title in data[key]]
                     if len(univ_ids) > 0:
                         result_query['univ_id'] = {"$in": univ_ids}
                 elif key == 'area_title':
