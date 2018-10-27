@@ -2,10 +2,10 @@ import json
 
 from flask import Flask, request, Response
 
-import validator
-from db_pool.db import DBPool
+from . import validator
+from .db_pool.db import DBPool
 # start application
-from utils import FILTER_PARAMS
+from .utils import FILTER_PARAMS
 
 app = Flask(__name__)
 db = DBPool('192.168.163.132', 27017)
