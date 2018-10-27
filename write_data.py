@@ -1,4 +1,6 @@
 import argparse
+from functools import partial
+
 import pymongo
 import os
 import pandas as pd
@@ -9,20 +11,15 @@ from multiprocessing import Pool
 from threading import Thread
 from queue import Queue
 
+from html_2018_parsing import html_2018_to_list_dicts
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--db', dest='db', type=str, help='database name')
 parser.add_argument('--erase', dest='erase', action='store_true', help='erase db')
 parser.set_defaults(erase=False)
 
 args = parser.parse_args()
-db = pymongo.MongoClient().get_database(args.db)
-
-
-def html_2018_to_parsed_json(src):
-    soup = BeautifulSoup(src, 'html.parser')
-    tab = soup.find("table", {"class": "tablesaw tablesaw-stack tablesaw-sortable"})
-    df = pd.read_html(str(tab), skiprows=0)[0]
-    return df.to_json()
+db = pymongo.MongoClient(host="192.168.163.132").get_database(args.db)
 
 
 failed_name = 0
@@ -120,28 +117,7 @@ def get_some_id(univ_title):
     return base64.b64encode(univ_title.encode('utf-8')).decode('ascii')
 
 
-def parse_2018(prefix, filename):
-    filename = filename.strip()
-
-    head, course_id = filename.split('p')
-    course_id = int(course_id[:-5])
-
-    _, year, univ_id = head.split('i')
-    univ_id = int(univ_id)
-
-    with open(os.path.join(prefix, filename), 'rb') as f:
-        result = html_2018_to_parsed_json(f.read())
-
-    raise
-    for x in result:
-        print(x)
-        x["univ_id"] = univ_id
-        x["course_id"] = course_id
-
-    return result
-
-
-def parse_2014(prefix, filename, data, areas, courses):
+def parse_needed_year(prefix, filename, data, areas, courses, parse_exact_year_f, year_num):
     filename = filename.strip()
 
     head, course_id = filename.split('p')
@@ -152,11 +128,13 @@ def parse_2014(prefix, filename, data, areas, courses):
 
     # with open(os.path.join(prefix, filename), 'rb') as f:
     #    result = parse_table_2014(f.read())
-    result = parse_table_2014(data)
-    if not result:
+    try:
+        head, result = parse_exact_year_f(data)
+    except AttributeError:
         return []
 
-    head, result = result
+    if not result:
+        return []
 
     univ_title = head['univ_title']
     univ_title = re.sub(r'\([^)]*\)', '', univ_title.strip())
@@ -183,7 +161,7 @@ def parse_2014(prefix, filename, data, areas, courses):
         x["univ_id"] = get_some_id(univ_title)
         x["course_id"] = course_id
         x["area_id_old"] = area_id_old
-        x["year"] = 2014
+        x["year"] = year_num
 
     return result
 
@@ -194,8 +172,8 @@ def read_files(q, mp_args):
             q.put((prefix, filename, f.read()))
 
 
-def parallel_2014(mp_args):
-    db = pymongo.MongoClient().get_database('test')
+def parallel_needed_year(mp_args, parse_exact_year_f, year_num):
+    db = pymongo.MongoClient(host="192.168.163.132").get_database(args.db)
 
     data = []
 
@@ -210,7 +188,7 @@ def parallel_2014(mp_args):
     for x in range(len(mp_args)):
         prefix, argument, file_data = q.get()
         z = len(data)
-        data.extend(parse_2014(prefix, argument, file_data, areas, courses))
+        data.extend(parse_needed_year(prefix, argument, file_data, areas, courses, parse_exact_year_f, year_num))
         # print(prefix, argument, len(data)-z)
 
     if data:
@@ -254,25 +232,11 @@ def main():
     if args.erase:
         db.requests.drop()
 
-    prefix = '/home/oleg/hafb/data_test/vstup.info/2018/'
-    """
-    for subdir in os.walk(prefix):
-        files = subdir[-1]
+    prefix_2018 = r'C:\Users\Name\PycharmProjects\Facebook-Co.Hackathon\data_2018\vstup.info\2018\\'
 
-        data = []
+    prefix_2014 = '/home/oleg/hafb/data_2014/vstup.info/2014/'
 
-        for x in files:
-            if 'p' in x:
-                data.extend(parse_2018(subdir[0], x))
-
-        if data:
-            print('Inserting ', len(data))
-            db.requests.insert_many(data)
-    """
-
-    prefix = '/home/oleg/hafb/data_2014/vstup.info/2014/'
-
-    def inputs_2014():
+    def inputs_needed(prefix):
         result = []
         inputs = []
         total = 0
@@ -297,9 +261,13 @@ def main():
         return result
 
     pool = Pool(4)
-    ar = inputs_2014()
-    db = pymongo.MongoClient().get_database(args.db)
-    pool.map(parallel_2014, ar)
+    db = pymongo.MongoClient(host='192.168.163.132').get_database(args.db)
+    # ar_2014 = inputs_needed(prefix_2014)
+    # parallel_2014 = partial(parallel_needed_year, parse_exact_year_f=parse_table_2014, year_num=2014)
+    # pool.map(parallel_2014, ar_2014)
+    ar_2018 = inputs_needed(prefix_2018)
+    parallel_2018 = partial(parallel_needed_year, parse_exact_year_f=html_2018_to_list_dicts, year_num=2018)
+    pool.map(parallel_2018, ar_2018)
     print(db.requests.count())
 
 
