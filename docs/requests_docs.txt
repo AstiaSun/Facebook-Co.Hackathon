@@ -1,0 +1,17 @@
+Legend:
+* - required field
+
+POST "/":
+{
+	* "filters": {
+		"univs": [string],
+		"knowledge_areas":[string],
+		"part_top_applicants": {
+			"type": "ZNO"/"CERT"/"ALL",
+			"value": int
+		},
+		"regions": [string],
+		"years": [int],
+		"is_enrolled": "true"/"false
+	}
+}
