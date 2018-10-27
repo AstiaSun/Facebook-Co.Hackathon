@@ -4,7 +4,7 @@ from flask import Flask, request, Response
 
 from db_pool.db import DBPool
 # start application
-from utils import FILTER_PARAMS
+from .utils import FILTER_PARAMS
 
 app = Flask(__name__)
 db = DBPool('192.168.163.132', 27017)

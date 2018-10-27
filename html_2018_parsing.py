@@ -121,6 +121,11 @@ def parse_details(src: str):
 
 def html_2018_to_list_dicts(src):
     soup = bs(src,'html.parser')
+
+    tlower = soup.find('div', {'id': 'list'}).div.div.div.div.h3.string.lower()
+    if 'коледж' in tlower or 'технікум' in tlower or 'училищ' in tlower:
+        return {}, []
+
     tab=soup.find("table", {"class":"tablesaw tablesaw-stack tablesaw-sortable"})
     df = pd.read_html(str(tab), skiprows=0)[0][:-1]
     res_list_of_dicts = []
@@ -144,8 +149,10 @@ def html_2018_to_list_dicts(src):
     header: Tag = soup.find('div', {'id': 'list'}).div.div.div.div
     header_p: Tag = header.h3.find_next_sibling('p')
 
+    # print(header)
+
     header_d = {
-        'univ': header.h3.string,
+        'univ_title': header.h3.string,
         'type': 'bachelor' if header_p.b.string == 'Бакалавр' else 'j_spec' if header_p.b.string == 'Молодший спеціаліст' else 'master' if header_p.b.string == 'Магістр' else None,
         'area_title': header_p.span.find_all('b')[0].next_sibling.strip(),
         'course_title': header_p.span.find_all('b')[1].next_sibling.strip().split(None, 1)[1],
@@ -154,10 +161,13 @@ def html_2018_to_list_dicts(src):
         'budget' : int(re.search(r'Обсяг держ замовлення:</b>\s*(\d+)', str(header_p)).group(1)) if ('Обсяг держ замовлення' in str(header_p)) else 0,
     }
 
-    return res_list_of_dicts, header_d
+    return header_d, res_list_of_dicts
 
 
 if __name__ == '__main__':
     for p in Path('data_2018').glob('vstup.info/2018/*/*.html'):
         print(p)
-        print(html_2018_to_list_dicts(p.open(encoding='utf8').read()))
+        try:
+            print(html_2018_to_list_dicts(p.open(encoding='utf8').read()))
+        except AttributeError:
+            pass

@@ -10,3 +10,4 @@ Flask-Cache==0.13.1
 beautifulsoup4
 html5lib
 lxml
+requests
