@@ -1,6 +1,6 @@
 from pymongo import MongoClient
 
-from utils import FILTER_KEYS, get_some_id
+from ..utils import FILTER_KEYS, get_some_id
 
 
 class DBPool(object):
