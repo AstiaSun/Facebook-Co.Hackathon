@@ -1,0 +1,38 @@
+Legend:
+* - required field
+
+GET "/"
+--request
+
+--response
+# tag_id == id in post request to "/"
+# Ex. 'univs': 'Університет'
+{
+     "tags": {"tag_id":"string"}
+     "knowledge_areas": [{"id": "string"}],
+     "regions": [{"id":"string"}],
+     "univs": [ {
+        "univ_title": "string",
+        "univ_id": "string"
+     }]
+}
+
+POST "/":
+--request
+{
+	* "filters": {
+		"univ_id": ["id"],
+		"knowledge_areas":["string"],
+		"part_top_applicants": {
+			"type": "gov_exams"/"school_score"
+			"value": int
+		},
+		"regions": ["string"],
+		"years": [int],
+		"is_enrolled": "true"/"false"
+	}
+}
+--response
+{
+    in development
+}
