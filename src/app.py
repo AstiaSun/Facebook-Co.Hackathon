@@ -22,10 +22,11 @@ def get_filtering_params():
         "tags": FILTER_PARAMS,
         "area_title": knowledge_areas,
         "univ_location": regions,
-        "univ_title": university_titles
+        "univ_title": [x['univ_title'] for x in university_titles]
     }
-    return Response(json.dumps(response_dict),
-                    mimetype='application/json')
+    response = Response(json.dumps(response_dict),  mimetype='application/json')
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
 
 @app.route('/', methods=['POST'])
