@@ -5,12 +5,15 @@ GET "/"
 --request
 
 --response
+# tag_id == id in post request to "/"
+# Ex. 'univs': 'Університет'
 {
-     "knowledge_areas": [string],
-     "regions": [string],
+     "tags": {"tag_id":"string"}
+     "knowledge_areas": [{"id": "string"}],
+     "regions": [{"id":"string"}],
      "univs": [ {
-        "univ_title": string,
-        "univ_id": string
+        "univ_title": "string",
+        "univ_id": "string"
      }]
 }
 
@@ -18,15 +21,15 @@ POST "/":
 --request
 {
 	* "filters": {
-		"univs": [string],
-		"knowledge_areas":[string],
+		"univ_id": ["id"],
+		"knowledge_areas":["string"],
 		"part_top_applicants": {
-			"type": "ZNO"/"CERT"/"ALL",
+			"type": "gov_exams"/"school_score"
 			"value": int
 		},
-		"regions": [string],
+		"regions": ["string"],
 		"years": [int],
-		"is_enrolled": "true"/"false
+		"is_enrolled": "true"/"false"
 	}
 }
 --response
