@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request
+import json
+
+from flask import Flask, request, Response
 
 import validator
 from db_pool.db import DBPool
@@ -15,10 +17,8 @@ def get_filtering_params():
     knowledge_areas = db.get_knowledge_areas()
     regions = db.get_regions()
     university_titles = db.get_university_titles()
-    print(knowledge_areas)
-    print(regions)
-    # TODO: send univ titles with ids, knowledge areas, regions to front
-    return render_template('hello.html')
+    return Response(json.dumps({"knowledge_areas": knowledge_areas, "regions": regions, "univs": university_titles}),
+                    mimetype='application/json')
 
 
 @app.route('/', methods=['POST'])

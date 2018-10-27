@@ -1,7 +1,21 @@
 Legend:
 * - required field
 
+GET "/"
+--request
+
+--response
+{
+     "knowledge_areas": [string],
+     "regions": [string],
+     "univs": [ {
+        "univ_title": string,
+        "univ_id": string
+     }]
+}
+
 POST "/":
+--request
 {
 	* "filters": {
 		"univs": [string],
@@ -14,4 +28,8 @@ POST "/":
 		"years": [int],
 		"is_enrolled": "true"/"false
 	}
+}
+--response
+{
+    in development
 }
