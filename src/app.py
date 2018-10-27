@@ -35,7 +35,7 @@ def filter_data_and_analyse():
     is_valid = validator.check_filtering_post_request(data)
     if not is_valid['status']:
         return Response(json.dumps(is_valid['error']), mimetype='application/json')
-    regions = db.get_regions_by_filter(data)
+    regions = db.get_regions_by_filter(data['filters'])
     return Response(json.dumps(regions), mimetype='application/json')
 
 

@@ -30,20 +30,25 @@ class DBPool(object):
     def get_regions_by_filter(self, filter_data):
         filter_data = self.__format_filter_data_to_mongo_request__(filter_data)
         print(filter_data)
-        return list(self._db.areas.find(filter_data))
+        return list(self._db.requests.find(filter_data))
 
     def __format_filter_data_to_mongo_request__(self, data):
         result_query = {}
+        print(data)
         for key in FILTER_KEYS:
             sub_keys = []
             if isinstance(key, dict):
                 key_value = next(iter(key))
                 sub_keys = key[key_value]
                 key = key_value
+            print(key)
+            print(data)
+            print(data[key])
             if key in data:
                 if key == 'part_top_applicants':
-                    for sub_key in sub_keys:
-                        result_query[key + '.' + sub_key] = data[key][sub_key]
-                elif key == 'is_enrolled':
+                    pass
+                    #for sub_key in sub_keys:
+                    #    result_query[key + '.' + sub_key] = data[key][sub_key]
+                else:
                     result_query[key] = data[key]
         return result_query
