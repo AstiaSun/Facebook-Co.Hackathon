@@ -27,7 +27,7 @@ class DBPool(object):
         values = list(self._db.univs.find({}, {'univ_location': 1}).distinct('univ_location'))
         return DBPool.__remove_none_from_list__(values)
 
-    def get_regions(self, filter_data):
+    def get_regions_by_filter(self, filter_data):
         filter_data = self.__format_filter_data_to_mongo_request__(filter_data)
         print(filter_data)
         return list(self._db.areas.find(filter_data))
