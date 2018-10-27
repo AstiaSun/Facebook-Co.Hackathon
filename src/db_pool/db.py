@@ -15,7 +15,7 @@ class DBPool(object):
         return list(self._db.univs.find({}, {'_id': 0, 'univ_id': 1, 'univ_title': 1}))
 
     def get_knowledge_areas(self):
-        return list(self._db.areas.distinct('area_type'))
+        return list(self._db.areas.find({}, {'_id': 0, 'area_title': 1}).distinct('area_title'))
 
     @staticmethod
     def __remove_none_from_list__(values):
