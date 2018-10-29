@@ -3,7 +3,6 @@ import json
 from flask import Flask, request, Response
 from flask_cors import CORS
 
-import validator
 from db_pool.db import DBPool
 # start application
 from utils import FILTER_PARAMS
@@ -35,6 +34,7 @@ def filter_data_and_analyse():
     data = request.get_json()
     #is_valid = validator.check_filtering_post_request(data)
     #if not is_valid['status']:
+<<<<<<< HEAD
     #    return Response(json.dumps(is_valid['error']), mimetype='application/json')
     print(data)
     regions = db.get_regions_by_filter(data['filters'])
@@ -51,6 +51,11 @@ def filter_data_and_analyse():
     response = Response(b'<img src="' + chart + b'"/>', mimetype='application/html')
     response.headers['Access-Control-Allow-Origin'] = '*'
     return response
+=======
+        #return Response(json.dumps(is_valid['error']), mimetype='application/json')
+    regions = db.get_regions_by_filter(data['filters'])
+    return Response(json.dumps(regions), mimetype='application/json')
+>>>>>>> b9bda33a7bebdb308c09b95db87f322863302d0c
 
 
 if __name__ == '__main__':

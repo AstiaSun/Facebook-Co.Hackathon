@@ -2,5 +2,6 @@ venv/
 .idea/
 __pycache__/
 html/
+data_2018/
 .ipynb_checkpoints/
 *.ipynb
