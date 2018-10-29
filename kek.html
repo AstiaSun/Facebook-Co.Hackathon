@@ -1,0 +1,159 @@
+<html>
+    <head>
+        <title>Kek</title>
+        <script src="http://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.min.js"></script>
+        <script src="dependencies.js" type="text/javascript" charset="utf-8"></script>
+        <script src="visualsearch.js" type="text/javascript" charset="utf-8"></script>
+        <!--[if (!IE)|(gte IE 8)]><!-->
+        <link href="visualsearch-datauri.css" media="screen" rel="stylesheet" type="text/css" />
+        <!--<![endif]-->
+        <!--[if lte IE 7]><!-->
+        <link href="visualsearch.css" media="screen" rel="stylesheet" type="text/css" />
+        <!--<![endif]-->
+    </head>
+    <body>
+        <div class="visual_search"></div>
+        <div ng-app="d" ng-controller="mainc">
+                <h1>{{message}}</h1>
+        </div>
+        <div>
+            Results: <div id="fuck"></div>
+        </div>
+
+        <script type="text/javascript" charset="utf-8">
+            var demoApp = angular.module("d", []);
+            demoApp.filter('unsafe', function($sce) { return $sce.trustAsHtml; });
+
+            demoApp.controller("mainc", ['$scope', '$http', '$sce', function($scope, $http, $sce){
+
+            $scope.html = '';
+            $scope.run = function(query, searchCollection){
+                $scope.message = query;
+            };
+
+            $scope.trustedHtml = function (html) {
+                return $sce.trustAsHtml(html);
+            }
+
+            $scope.makeRequest = function(params){
+                console.log('params:');
+                console.log(params);
+                $http({
+                    method: 'POST',
+                    url: 'http://192.168.163.132:8080/',
+                    data: JSON.stringify({filters: params})
+                }).then(function(success){
+                    console.log(success);
+                    //$scope.html = success.data;
+                    document.getElementById('fuck').innerHTML = success.data;
+                }, function(error){
+                    console.log(error);
+                });
+            };
+
+            $scope.createVisualSearch=function(){
+            var visualSearch = VS.init({
+                container : $('.visual_search'),
+                query     : '',
+                callbacks : {
+                    search       : function(query, searchCollection) {
+                        var params = {};
+console.log(searchCollection);
+                        searchCollection.models.forEach(function(filter){
+                            var cat = filter.attributes.category;
+                            var val = filter.attributes.value;
+
+                            if(cat == 'university'){
+                                cat = 'univ_title';
+                            }
+
+                            if(cat=='location'){
+                                cat = 'univ_location';
+                            }
+
+                            if(cat=='area of study'){
+                                cat = 'area_title';
+                            }
+                            
+                            params[cat] = [val];
+                        });
+
+                        console.log(params);
+
+                        if(!params){
+                            return;
+                        }
+
+                        $scope.makeRequest(params);
+                    },
+                    facetMatches : function(callback) {
+                        callback([
+                            'university', 
+                            'area of study', 
+                            'top exams, %',
+                            'top school marks, %',
+                            'location',
+                            'year',
+                            'enrolled'
+                        ])
+                    },
+                    valueMatches : function(facet, searchTerm, callback) {
+                        switch(facet){
+                            case 'university':
+                                callback(
+                                    $scope.data.univ_title.map(
+                                        function(title){
+                                            return {
+                                                value: title
+                                            };
+                                        }
+                                    )
+                                );
+                                break;
+                            case 'area of study':
+                                callback(
+                                    $scope.data.area_title.map(
+                                        function(title){
+                                            return {
+                                                value: title
+                                            };
+                                        }
+                                    )
+                                );
+                                break;
+                            case 'location': 
+                            callback(
+                                    $scope.data.univ_location.map(
+                                        function(title){
+                                            return {
+                                                value: title
+                                            };
+                                        }
+                                   )
+                                );
+                                break;
+                            case 'enrolled':
+                                callback([
+                                    {value: 'yes'},
+                                    {value: 'no'}
+                                ]);
+                                break;
+                        }
+                    }
+                }});}
+
+                // -------- 
+                $http.get('http://192.168.163.132:8080/').then(
+                function(response){
+                    $scope.data = response.data;
+                    console.dir($scope.data);
+                    $scope.createVisualSearch();
+                },
+                function(response){
+                    console.log('fail');
+                }
+            );
+            }]);
+        </script>
+    </body>
+</html>
